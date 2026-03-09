@@ -4,7 +4,7 @@ import os
 
 
 def download_data():
-    url = "https://data.gov.ua/dataset/06779371-308f-42d7-895e-5a39833375f0/resource/3f13166f-090b-499e-8e23-e9851c5a5f67/download/tz_opendata_z01012024_01022024.csv"
+    url = "./data/raw/tz_opendata_z01012024_01022024.csv"
 
     output_path = "data/raw/vehicle_registrations.csv"
 
