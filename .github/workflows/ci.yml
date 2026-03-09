@@ -14,9 +14,17 @@ on:
         description: "Module to test"
         required: true
         default: "all"
+        type: choice
+        options:
+            - all
+            - data_load
+            - quality
+            - research
+            - visualize
 
 jobs:
-  test:
+  data_load:
+    if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == 'data_load'
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +37,92 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt pytest
 
-      - name: Run tests
-        run: pytest -q
+      - name: Run tests and generate artifact
+        run: pytest tests/test_data_load.py --junitxml=artifacts/data_load_report.xml
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: data_load-results
+          path: artifacts/
+
+  quality:
+    if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == 'quality'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest
+
+      - name: Run tests and generate artifact
+        run: pytest tests/test_quality.py --junitxml=artifacts/quality_report.xml
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-results
+          path: artifacts/
+
+  research:
+    if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == 'research'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest
+
+      - name: Run tests and generate artifact
+        run: pytest tests/test_research.py --junitxml=artifacts/research_report.xml
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-results
+          path: artifacts/
+
+  visualize:
+    if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == 'visualize'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest
+
+      - name: Run tests and generate artifact
+        run: pytest tests/test_visualize.py --junitxml=artifacts/visualize_report.xml
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visualize-results
+          path: artifacts/
