@@ -51,7 +51,7 @@ jobs:
           PYTHONPATH: src
         run: |
             echo "Running tests for ${{ matrix.module }}"
-            pytest tests/test_${{matrix.module}}.py 
+            python -m pytest tests/test_${{matrix.module}}.py 
 
       - name: Run module
         if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module

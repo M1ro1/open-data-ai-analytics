@@ -1,11 +1,13 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import os
 
 def create_viz():
     df = pd.read_csv("data/sample/vehicle_registrations.csv")
     df['FUEL'].value_counts().plot(kind='bar', title='Розподіл за типом палива')
     plt.tight_layout()
+
+    os.makedirs('reports/figures', exist_ok=True)
     plt.savefig("reports/figures/fuel_distribution.png")
     print("Графік збережено в reports/figures/")
 
