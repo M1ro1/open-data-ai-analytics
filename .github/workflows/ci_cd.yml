@@ -21,6 +21,12 @@ on:
         - research
         - visualize
 
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+
 jobs:
   run_modules:
     runs-on: ubuntu-latest
@@ -95,6 +101,10 @@ jobs:
           
           echo "Running ${{ matrix.module }}"
           python -m ${{ matrix.module }} 2>&1 | tee artifacts/${{ matrix.module }}/run.log
+      
+          if [ -d "reports" ]; then
+            cp -r reports artifacts/${{ matrix.module }}/
+          fi
 
       - name: Upload artifacts
         if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
@@ -102,3 +112,55 @@ jobs:
         with:
           name: artifacts-${{ matrix.module }}
           path: artifacts/${{ matrix.module }}
+
+  deploy_pages:
+    needs: run_modules
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: downloaded_artifacts
+          pattern: artifacts-*
+          merge-multiple: true
+
+      - name: Prepare HTML Page
+        run: |
+          mkdir -p public
+          echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Звіт з візуалізації</title></head><body style='font-family: Arial; padding: 20px;'>" > public/index.html
+          echo "<h1>Результати аналізу транспортних засобів</h1>" >> public/index.html
+          
+          if [ -d "downloaded_artifacts" ]; then
+            find downloaded_artifacts -type f -name "*.png" -exec cp {} public/ \; || true
+          fi
+          
+          if ls public/*.png 1> /dev/null 2>&1; then
+            for img in public/*.png; do
+              filename=$(basename "$img")
+              echo "<img src='$filename' alt='Графік' style='max-width: 800px; border: 1px solid #ccc; margin-top: 20px;'><br>" >> public/index.html
+            done
+          else
+            echo "<p>Графік ще не згенеровано або код модуля не змінювався під час цього запуску.</p>" >> public/index.html
+          fi
+          
+          echo "</body></html>" >> public/index.html
+          
+          echo "--- Файли, підготовлені для публікації ---"
+          ls -la public/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
