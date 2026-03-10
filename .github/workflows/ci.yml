@@ -1,128 +1,76 @@
-
-name: "CI"
+name: CI modules
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
 
   pull_request:
-    branches: ["main"]
+    branches: [main]
 
   workflow_dispatch:
     inputs:
       module:
-        description: "Module to test"
+        description: 'Module to test'
         required: true
-        default: "all"
+        default: 'all'
         type: choice
         options:
-            - all
-            - data_load
-            - quality
-            - research
-            - visualize
+        - all
+        - data_load
+        - quality
+        - research
+        - visualize
 
 jobs:
-  data_load:
-    if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == 'data_load'
+  run_modules:
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ["data_load", "quality", "research", "visualize"]
 
     steps:
       - name: Checkout code
+        if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
         uses: actions/checkout@v4
 
       - name: Set up Python
+        if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt pytest
+        if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
+        run: pip install -r requirements.txt
 
-      - name: Run tests and generate artifact
-        run: pytest tests/test_data_load.py --junitxml=artifacts/data_load_report.xml
+      - name: Lint code with flake8
+        if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
+        run: |
+            pip install flake8
+            flake8 src/ tests/ --max-line-length=120
 
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: data_load-results
-          path: artifacts/
+      - name: Run unit tests
+        if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
+        env:
+          PYTHONPATH: src
+        run: |
+            echo "Running tests for ${{ matrix.module }}"
+            pytest tests/test_${{matrix.module}}.py 
 
-  quality:
-    if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == 'quality'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt pytest
-
-      - name: Run tests and generate artifact
-        run: pytest tests/test_quality.py --junitxml=artifacts/quality_report.xml
+      - name: Run module
+        if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
+        env:
+            PYTHONPATH: src
+        run: |
+          mkdir -p artifacts/${{ matrix.module }}
+          echo "Running ${{ matrix.module }}"
+          python -m ${{ matrix.module }} > artifacts/${{ matrix.module }}/run.log 2>&1
 
       - name: Upload artifacts
-        if: always()
+        if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
         uses: actions/upload-artifact@v4
         with:
-          name: quality-results
-          path: artifacts/
-
-  research:
-    if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == 'research'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt pytest
-
-      - name: Run tests and generate artifact
-        run: pytest tests/test_research.py --junitxml=artifacts/research_report.xml
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: research-results
-          path: artifacts/
-
-  visualize:
-    if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == 'visualize'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt pytest
-
-      - name: Run tests and generate artifact
-        run: pytest tests/test_visualize.py --junitxml=artifacts/visualize_report.xml
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: visualize-results
-          path: artifacts/
+          name: artifacts-${{ matrix.module }}
+          path: artifacts/${{ matrix.module }}
