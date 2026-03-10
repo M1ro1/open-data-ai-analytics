@@ -21,7 +21,7 @@ class TestCreateViz(unittest.TestCase):
 
         create_viz()
 
-        mock_read_csv.assert_called_once_with("data/raw/vehicle_registrations.csv")
+        mock_read_csv.assert_called_once_with("data/sample/vehicle_registrations.csv")
 
     @patch("visualize.plt")
     @patch("visualize.pd.read_csv")
@@ -55,7 +55,7 @@ class TestCreateViz(unittest.TestCase):
 
         create_viz()
 
-        mock_read_csv.assert_called_once_with("data/raw/vehicle_registrations.csv")
+        mock_read_csv.assert_called_once_with("data/sample/vehicle_registrations.csv")
 
     @patch("visualize.plt")
     @patch("visualize.pd.read_csv")
@@ -72,4 +72,3 @@ class TestCreateViz(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

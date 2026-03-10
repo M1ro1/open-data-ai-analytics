@@ -26,8 +26,8 @@ class TestDownloadData(unittest.TestCase):
         self.assertEqual(kwargs["sep"], ";")
         self.assertEqual(kwargs["encoding"], "utf-8")
 
-        mock_makedirs.assert_called_once_with("data/raw", exist_ok=True)
-        mock_df.to_csv.assert_called_once_with("data/raw/vehicle_registrations.csv", index=False)
+        mock_makedirs.assert_called_once_with("data/sample", exist_ok=True)
+        mock_df.to_csv.assert_called_once_with("data/sample/vehicle_registrations.csv", index=False)
 
     @patch("data_load.pd.read_csv", side_effect=Exception("Network error"))
     def test_download_data_failure(self, mock_read_csv):
@@ -46,7 +46,7 @@ class TestDownloadData(unittest.TestCase):
 
         download_data()
 
-        mock_makedirs.assert_called_once_with("data/raw", exist_ok=True)
+        mock_makedirs.assert_called_once_with("data/sample", exist_ok=True)
 
     @patch("data_load.os.makedirs")
     @patch("data_load.pd.read_csv")
@@ -58,9 +58,8 @@ class TestDownloadData(unittest.TestCase):
 
         download_data()
 
-        mock_df.to_csv.assert_called_once_with("data/raw/vehicle_registrations.csv", index=False)
+        mock_df.to_csv.assert_called_once_with("data/sample/vehicle_registrations.csv", index=False)
 
 
 if __name__ == "__main__":
     unittest.main()
-

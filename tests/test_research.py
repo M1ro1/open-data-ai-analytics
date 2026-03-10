@@ -20,7 +20,7 @@ class TestResearchData(unittest.TestCase):
 
         research_data()
 
-        mock_read_csv.assert_called_once_with("data/raw/vehicle_registrations.csv")
+        mock_read_csv.assert_called_once_with("data/sample/vehicle_registrations.csv")
 
     @patch("research.pd.read_csv")
     def test_research_data_top_brands(self, mock_read_csv):
@@ -38,7 +38,7 @@ class TestResearchData(unittest.TestCase):
 
         research_data()
 
-        mock_read_csv.assert_called_once_with("data/raw/vehicle_registrations.csv")
+        mock_read_csv.assert_called_once_with("data/sample/vehicle_registrations.csv")
 
     @patch("research.pd.read_csv")
     def test_research_data_single_brand(self, mock_read_csv):
@@ -60,4 +60,3 @@ class TestResearchData(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

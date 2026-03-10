@@ -22,7 +22,7 @@ class TestCheckQuality(unittest.TestCase):
 
         check_quality()
 
-        mock_read_csv.assert_called_once_with("data/raw/vehicle_registrations.csv")
+        mock_read_csv.assert_called_once_with("data/sample/vehicle_registrations.csv")
 
     @patch("quality.pd.read_csv")
     def test_check_quality_detects_nulls(self, mock_read_csv):
@@ -58,9 +58,8 @@ class TestCheckQuality(unittest.TestCase):
 
         check_quality()
 
-        mock_read_csv.assert_called_once_with("data/raw/vehicle_registrations.csv")
+        mock_read_csv.assert_called_once_with("data/sample/vehicle_registrations.csv")
 
 
 if __name__ == "__main__":
     unittest.main()
-
