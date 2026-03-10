@@ -35,6 +35,34 @@ jobs:
         if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
         uses: actions/checkout@v4
 
+      - name: Check changed files
+        if: github.event_name != 'workflow_dispatch'
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            module_changed:
+              - 'src/${{ matrix.module }}.py'
+              - 'tests/test_${{ matrix.module }}.py'
+              - 'requirements.txt'
+
+      - name: Decide if module should run
+        id: check
+        run: |
+                if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+                  if [ "${{ inputs.module }}" == "all" ] || [ "${{ inputs.module }}" == "${{ matrix.module }}" ]; then
+                    echo "run=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "run=false" >> $GITHUB_OUTPUT
+                  fi
+                else
+                  if [ "${{ steps.filter.outputs.module_changed }}" == "true" ]; then
+                    echo "run=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "run=false" >> $GITHUB_OUTPUT
+                  fi
+                fi
+
       - name: Set up Python
         if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
         uses: actions/setup-python@v5
