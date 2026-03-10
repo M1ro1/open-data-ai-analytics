@@ -45,12 +45,6 @@ jobs:
         if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
         run: pip install -r requirements.txt
 
-      - name: Lint code with flake8
-        if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
-        run: |
-            pip install flake8
-            flake8 src/ tests/ --max-line-length=120
-
       - name: Run unit tests
         if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
         env:

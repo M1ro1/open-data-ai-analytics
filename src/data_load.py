@@ -3,8 +3,8 @@ import os
 
 
 def download_data():
-    url = "./data/raw/tz_opendata_z01012024_01022024.csv"
-    output_path = "data/raw/vehicle_registrations.csv"
+    url = "./data/sample/sample_data.csv"
+    output_path = "data/sample/vehicle_registrations.csv"
     print(f"Починаю завантаження даних з {url}...")
 
     try:
