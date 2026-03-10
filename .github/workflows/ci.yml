@@ -59,8 +59,14 @@ jobs:
             PYTHONPATH: src
         run: |
           mkdir -p artifacts/${{ matrix.module }}
+          
+          if [ "${{ matrix.module }}" != "data_load" ]; then
+            echo "Preparing data by running data_load..."
+            python -m data_load
+          fi
+          
           echo "Running ${{ matrix.module }}"
-          python -m ${{ matrix.module }} > artifacts/${{ matrix.module }}/run.log 2>&1
+          python -m ${{ matrix.module }} 2>&1 | tee artifacts/${{ matrix.module }}/run.log
 
       - name: Upload artifacts
         if: github.event_name != 'workflow_dispatch' || inputs.module == 'all' || inputs.module == matrix.module
