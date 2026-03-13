@@ -1,0 +1,40 @@
+name: Self-Hosted CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      module:
+        description: 'Module to run on local PC'
+        required: true
+        default: 'data_load'
+        type: choice
+        options:
+        - data_load
+        - quality
+
+jobs:
+  runs_self_hosted:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check python
+        run: python --version
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run module locally
+        env:
+          PYTHONPATH: src
+        run: |
+            echo "Running ${{ inputs.module }} on my local machine!"
+            python -m ${{ inputs.module }}
+              
+      - name: Upload artifacts (Optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-run-logs
+          path: data/sample/
