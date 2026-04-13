@@ -1,16 +1,12 @@
 services:
   data_load:
-    build:
-      context: .
-      dockerfile: Dockerfile.load
+    build: ./src/data_load
     volumes:
       - ./data:/app/data
       - shared_db:/app/db
 
   quality_analysis:
-    build:
-      context: .
-      dockerfile: Dockerfile.quality
+    build: ./src/quality
     volumes:
       - shared_db:/app/db
       - ./reports:/app/reports
@@ -19,9 +15,7 @@ services:
         condition: service_completed_successfully
 
   research:
-    build:
-      context: .
-      dockerfile: Dockerfile.research
+    build: ./src/research
     volumes:
       - shared_db:/app/db
       - ./reports:/app/reports
@@ -30,9 +24,7 @@ services:
         condition: service_completed_successfully
 
   visualization:
-    build:
-      context: .
-      dockerfile: Dockerfile.visualization
+    build: ./src/visualization
     volumes:
       - shared_db:/app/db
       - ./reports:/app/reports
@@ -41,9 +33,7 @@ services:
         condition: service_completed_successfully
 
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile.web
+    build: ./src/web
     ports:
       - "8501:8501"
     volumes:
