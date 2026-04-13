@@ -1,0 +1,60 @@
+services:
+  data_load:
+    build:
+      context: .
+      dockerfile: Dockerfile.load
+    volumes:
+      - ./data:/app/data
+      - shared_db:/app/db
+
+  quality_analysis:
+    build:
+      context: .
+      dockerfile: Dockerfile.quality
+    volumes:
+      - shared_db:/app/db
+      - ./reports:/app/reports
+    depends_on:
+      data_load:
+        condition: service_completed_successfully
+
+  research:
+    build:
+      context: .
+      dockerfile: Dockerfile.research
+    volumes:
+      - shared_db:/app/db
+      - ./reports:/app/reports
+    depends_on:
+      data_load:
+        condition: service_completed_successfully
+
+  visualization:
+    build:
+      context: .
+      dockerfile: Dockerfile.visualization
+    volumes:
+      - shared_db:/app/db
+      - ./reports:/app/reports
+    depends_on:
+      data_load:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./reports:/app/reports
+    depends_on:
+      visualization:
+        condition: service_completed_successfully
+      quality_analysis:
+        condition: service_completed_successfully
+      research:
+        condition: service_completed_successfully
+
+volumes:
+  shared_db:
