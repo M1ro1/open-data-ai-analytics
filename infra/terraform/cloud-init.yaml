@@ -1,0 +1,19 @@
+#cloud-config
+package_upgrade: true
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - software-properties-common
+  - git
+
+runcmd:
+  - curl -fsSL https://get.docker.com -o get-docker.sh
+  - sh get-docker.sh
+  - systemctl start docker
+  - systemctl enable docker
+
+  - git clone https://github.com/M1ro1/open-data-ai-analytics.git /app
+
+  - cd /app/docker
+  - docker compose up -d
