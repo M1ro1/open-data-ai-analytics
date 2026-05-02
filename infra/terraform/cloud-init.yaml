@@ -15,5 +15,5 @@ runcmd:
 
   - git clone https://github.com/M1ro1/open-data-ai-analytics.git /app
 
-  - cd /app/docker
+  - cd /app/infra/monitoring/prometheus
   - docker compose up -d
