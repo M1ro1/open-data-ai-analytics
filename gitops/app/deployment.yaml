@@ -19,4 +19,4 @@ spec:
       - name: web-app-container
         image: maksymlirko/lab6_web:v1
         ports:
-        - containerPort: 8501 # Заміни на порт, який слухає твій застосунок
+        - containerPort: 8501
